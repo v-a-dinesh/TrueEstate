@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import transactionRoutes from './routes/transactionRoutes.js';
 import { connectTurso } from './utils/tursoDatabase.js';
-import { loadCSVToMemory } from './utils/csvFallback.js';
 
 dotenv.config();
 
@@ -22,7 +21,7 @@ app.get('/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Server is running',
-    dataSource: 'Turso (with CSV fallback)'
+    dataSource: 'Turso database'
   });
 });
 
@@ -39,50 +38,18 @@ app.use((err, req, res, next) => {
 // Start server
 const startServer = async () => {
   try {
-    let tursoConnected = false;
-    let csvLoaded = false;
-
-    // Try to connect to Turso first
-    try {
-      console.log('Connecting to Turso database...');
-      await connectTurso();
-      console.log('Turso database connected successfully');
-      tursoConnected = true;
-    } catch (tursoError) {
-      console.warn('Turso connection failed:', tursoError.message);
-      console.log('Will attempt CSV fallback');
-    }
-    
-    // Try to load CSV as fallback (if file exists)
-    try {
-      console.log('Loading CSV data into memory as fallback...');
-      await loadCSVToMemory();
-      console.log('CSV fallback loaded successfully');
-      csvLoaded = true;
-    } catch (csvError) {
-      console.warn('CSV loading failed:', csvError.message);
-      if (!tursoConnected) {
-        throw new Error('Both Turso and CSV fallback failed. Cannot start server.');
-      }
-      console.log('Continuing with Turso only (CSV not available)');
-    }
-    
-    if (!tursoConnected && !csvLoaded) {
-      throw new Error('No data source available');
-    }
-
-    const dataSource = tursoConnected && csvLoaded 
-      ? 'Turso (primary) with CSV fallback'
-      : tursoConnected 
-        ? 'Turso only' 
-        : 'CSV only';
+    // Connect to Turso database
+    console.log('Connecting to Turso database...');
+    await connectTurso();
+    console.log('Turso database connected successfully');
     
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);
-      console.log(`Data source: ${dataSource}`);
+      console.log('Data source: Turso database');
     });
   } catch (error) {
     console.error('Failed to start server:', error);
+    console.error('Please ensure Turso database is configured correctly');
     process.exit(1);
   }
 };
