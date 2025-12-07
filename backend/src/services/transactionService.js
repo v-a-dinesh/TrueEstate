@@ -7,7 +7,7 @@ class TransactionService {
   }
 
   async getTransactions(filters) {
-    // Try Turso first, fallback to CSV
+    // Try Turso first, fallback to CSV if available
     if (this.useTurso) {
       try {
         console.log('Attempting Turso database query...');
@@ -26,14 +26,27 @@ class TransactionService {
         
         return result;
       } catch (error) {
-        console.warn('Turso query failed, falling back to CSV:', error.message);
+        console.warn('Turso query failed:', error.message);
         this.useTurso = false; // Disable Turso for subsequent requests
+        
+        // Try CSV fallback
+        try {
+          console.log('Attempting CSV fallback...');
+          return await queryCSVData(filters);
+        } catch (csvError) {
+          console.error('CSV fallback also failed:', csvError.message);
+          throw new Error('No data source available');
+        }
       }
     }
     
     // Fallback to CSV
-    console.log('Using CSV fallback for data retrieval');
-    return await queryCSVData(filters);
+    try {
+      console.log('Using CSV fallback for data retrieval');
+      return await queryCSVData(filters);
+    } catch (csvError) {
+      throw new Error('CSV data not available');
+    }
   }
 
   async checkTursoHasData() {

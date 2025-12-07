@@ -16,8 +16,18 @@ export const connectTurso = async () => {
     await db.execute('SELECT 1');
     console.log('Turso Database Connected');
 
-    // Create transactions table if not exists
-    await createTransactionsTable();
+    // Try to create table, but don't fail if writes are blocked
+    try {
+      await createTransactionsTable();
+      console.log('Turso table schema verified');
+    } catch (tableError) {
+      if (tableError.code === 'BLOCKED') {
+        console.log('Turso write operations blocked (free plan limitation)');
+        console.log('Assuming table already exists with data');
+      } else {
+        throw tableError;
+      }
+    }
 
     return db;
   } catch (error) {
