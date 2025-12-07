@@ -1,0 +1,18 @@
+{
+  "name": "retail-sales-management-system",
+  "version": "1.0.0",
+  "description": "Full-stack MERN application for retail sales management",
+  "scripts": {
+    "install-all": "cd backend && npm install && cd ../frontend && npm install",
+    "dev": "concurrently \"cd backend && npm run dev\" \"cd frontend && npm run dev\"",
+    "start": "concurrently \"cd backend && npm start\" \"cd frontend && npm run preview\"",
+    "build": "cd frontend && npm run build",
+    "load-data": "cd backend && node src/scripts/loadData.js"
+  },
+  "keywords": ["retail", "sales", "management", "mern", "react", "express", "torso"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
