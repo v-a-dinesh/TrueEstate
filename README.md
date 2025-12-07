@@ -1,7 +1,12 @@
 # TruEstate - Retail Sales Management System
 
+## Live Application
+- **Frontend:** https://true-estate-tau.vercel.app/
+- **Backend API:** https://truestate-backend-3mg8.onrender.com
+- **GitHub Repository:** https://github.com/v-a-dinesh/TrueEstate
+
 ## Overview
-A full-stack retail sales management system built with the MERN stack, featuring advanced search, multi-select filtering, sorting, and pagination capabilities. The application efficiently handles 1,000,000 transaction records with optimized query performance using Turso (cloud SQLite) as the primary database with CSV fallback for resilience. The system provides real-time statistics and a responsive UI matching the provided Figma design specifications.
+A full-stack retail sales management system featuring advanced search, multi-select filtering, sorting, and pagination capabilities. The application efficiently handles 1,000,000 transaction records with optimized query performance using Turso (cloud SQLite) database. The system provides real-time statistics and a responsive UI matching the provided Figma design specifications.
 
 ## Tech Stack
 
@@ -22,8 +27,7 @@ A full-stack retail sales management system built with the MERN stack, featuring
 - Dotenv 16.4.7
 
 **Database:**
-- Primary: Turso (Cloud SQLite)
-- Fallback: CSV in-memory processing
+- Turso (Cloud SQLite) - 1,000,000 records
 
 ## Search Implementation Summary
 
@@ -124,15 +128,19 @@ CSV_FILE_PATH=./truestate_assignment_dataset.csv
 
 Create `.env` file in `frontend/` directory:
 ```env
+# For local development
 VITE_API_URL=http://localhost:5000
+
+# For production (already configured)
+# VITE_API_URL=https://truestate-backend-3mg8.onrender.com
 ```
 
-4. **Load data to Turso (optional)**
+4. **Load data to Turso (first time setup)**
 ```bash
 cd backend
 npm run load-turso
 ```
-Note: The application works with CSV fallback if Turso is not loaded.
+Note: This step is only needed for local development. Production uses pre-loaded Turso database.
 
 5. **Start the application**
 
@@ -177,5 +185,17 @@ TruEstate/
 ├── docs/            # Documentation
 └── README.md        # This file
 ```
+
+## Deployment
+
+### Production URLs
+- **Frontend (Vercel):** https://true-estate-tau.vercel.app/
+- **Backend (Render):** https://truestate-backend-3mg8.onrender.com
+- **Database (Turso):** Cloud-hosted SQLite with 1,000,000 records
+
+### Architecture
+- Frontend deployed on Vercel (automatic deployments from main branch)
+- Backend deployed on Render (automatic deployments from main branch)
+- Database hosted on Turso (read-only, pre-loaded with data)
 
 For detailed architecture information, see [docs/architecture.md](docs/architecture.md)

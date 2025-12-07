@@ -1,5 +1,8 @@
 # TruEstate Frontend
 
+## Live Application
+**Production URL:** https://true-estate-tau.vercel.app/
+
 ## Overview
 Frontend application for the TruEstate Retail Sales Management System. Built with React and Vite, featuring advanced search, filtering, sorting, and pagination.
 
@@ -34,9 +37,9 @@ Create a `.env` file in the frontend directory:
 VITE_API_URL=http://localhost:5000
 ```
 
-For production:
+For production (already configured):
 ```env
-VITE_API_URL=https://your-backend-url.com
+VITE_API_URL=https://truestate-backend-3mg8.onrender.com
 ```
 
 ## Installation

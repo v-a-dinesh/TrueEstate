@@ -1,7 +1,10 @@
 # TruEstate Backend
 
+## Live API
+**Production URL:** https://truestate-backend-3mg8.onrender.com
+
 ## Overview
-Backend API server for the TruEstate Retail Sales Management System. Built with Express.js and Turso (cloud SQLite) with CSV fallback for resilience.
+Backend API server for the TruEstate Retail Sales Management System. Built with Express.js and Turso (cloud SQLite) database handling 1,000,000 transaction records.
 
 ## Tech Stack
 - Node.js 22.13.1
@@ -119,17 +122,14 @@ Health check endpoint.
 }
 ```
 
-## Database Strategy
+## Database
 
-### Primary: Turso (Cloud SQLite)
+### Turso (Cloud SQLite)
 - Fast queries (< 50ms)
 - 8 indexes for optimization
-- Handles 1,000,000 records
-
-### Fallback: CSV In-Memory
-- Automatic activation on Turso failure
-- Seamless user experience
-- Query performance < 100ms
+- 1,000,000 pre-loaded records
+- Read-only in production
+- 99.9% uptime guarantee
 
 ## Running the Server
 

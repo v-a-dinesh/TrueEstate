@@ -1,9 +1,14 @@
 # TruEstate - System Architecture
 
+## Live Deployment
+- **Frontend:** https://true-estate-tau.vercel.app/
+- **Backend:** https://truestate-backend-3mg8.onrender.com
+- **Repository:** https://github.com/v-a-dinesh/TrueEstate
+
 ## Backend Architecture
 
 ### Overview
-The backend follows a layered architecture pattern with clear separation of concerns, implementing the MVC (Model-View-Controller) pattern adapted for API services.
+The backend follows a layered architecture pattern with clear separation of concerns, implementing the MVC (Model-View-Controller) pattern adapted for API services. The production deployment uses Turso (cloud SQLite) as the exclusive data source.
 
 ### Architecture Layers
 
@@ -80,12 +85,9 @@ Controller (transactionController.js)
     ↓
 Service (transactionService.js)
     ↓
-    ├─→ Turso Database (tursoDatabase.js) [Primary]
-    │   ├─ Success → Return data
-    │   └─ Failure ↓
-    │
-    └─→ CSV Fallback (csvFallback.js) [Secondary]
-        └─ Return data
+Turso Database (tursoDatabase.js)
+    ↓
+Query execution
     ↓
 Service processes data
     ↓
@@ -96,17 +98,16 @@ HTTP Response (JSON)
 
 ### Database Strategy
 
-#### Primary: Turso (Cloud SQLite)
+#### Turso (Cloud SQLite)
 - **Connection:** `@libsql/client`
 - **Schema:** 26 fields with indexes
 - **Performance:** < 50ms queries
 - **Indexes:** 8 indexes on frequently queried fields
+- **Records:** 1,000,000 pre-loaded transactions
+- **Mode:** Read-only in production (free tier limitation)
+- **Availability:** 99.9% uptime
 
-#### Fallback: CSV In-Memory
-- **Loading:** Streaming with csv-parser
-- **Storage:** In-memory array (1M records)
-- **Performance:** < 100ms queries
-- **Activation:** Automatic on Turso failure
+**Note:** CSV fallback was removed in production. The application uses Turso exclusively as it contains all required data.
 
 ### Query Optimization
 - Parameterized queries (SQL injection prevention)
@@ -322,32 +323,24 @@ Components re-render with new data
     - Display results to user
 ```
 
-### Failover Flow
+### Production Data Flow
 ```
-User Request
+User Request (Frontend - Vercel)
+    ↓ HTTPS
+Backend API (Render)
     ↓
-Backend Service
+Turso Database (Cloud)
     ↓
-Try Turso Database
+Return 1M+ records (paginated)
     ↓
-    ├─ Success → Return data
-    │
-    └─ Failure (connection/timeout/empty)
-        ↓
-        Check if Turso has data
-        ↓
-        ├─ Has data → Return empty result (valid query)
-        │
-        └─ No data / Error
-            ↓
-            Activate CSV Fallback
-            ↓
-            Query in-memory CSV data
-            ↓
-            Return data
-            ↓
-            User sees no difference (seamless)
+Backend processes and formats
+    ↓
+JSON Response to Frontend
+    ↓
+UI renders data
 ```
+
+**Simplified Architecture:** Direct connection to Turso database with no fallback needed. All 1,000,000 records are pre-loaded and available for read operations.
 
 ---
 
@@ -607,19 +600,30 @@ TruEstate/
 
 ## Deployment Architecture
 
-### Recommended Deployment
+### Production Deployment
 ```
-Frontend (Vercel/Netlify)
-    ↓
-Backend (Railway/Render)
-    ↓
+Frontend (Vercel)
+https://true-estate-tau.vercel.app/
+    ↓ HTTPS
+Backend (Render)
+https://truestate-backend-3mg8.onrender.com
+    ↓ Secure Connection
 Turso Database (Cloud)
+libsql://[database-url].turso.io
 ```
 
 ### Environment Configuration
-- **Development:** Local servers with hot reload
-- **Production:** Optimized builds with environment-specific configs
-- **Database:** Turso cloud instance with automatic backups
+- **Development:** Local servers with hot reload (localhost:3000 and localhost:5000)
+- **Production:** 
+  - Frontend: Vercel (auto-deploy from GitHub main branch)
+  - Backend: Render (auto-deploy from GitHub main branch)
+  - Database: Turso cloud instance (read-only, 1M records pre-loaded)
+
+### Deployment Features
+- **Automatic Deployments:** Push to main branch triggers auto-deploy
+- **HTTPS:** Automatic SSL certificates on both Vercel and Render
+- **Environment Variables:** Securely managed in platform dashboards
+- **Zero Downtime:** Rolling deployments on both platforms
 
 ---
 
